@@ -1,0 +1,17 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: instax-wordcloud
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /join
+    envVars:
+      # Render injects PORT itself; server.ts already reads it and binds 0.0.0.0.
+      - key: NODE_ENV
+        value: production
+      # Free instances have an ephemeral disk, so keep the event log in /tmp
+      # rather than the repo directory.
+      - key: EVENT_LOG_PATH
+        value: /tmp/events.jsonl
