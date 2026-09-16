@@ -8,6 +8,9 @@ import { DEFAULT_CONFIG, type AppState, type PollStats, type WordEntry } from '@
 
 const WordCloud = dynamic(() => import('@/components/WordCloud'), { ssr: false })
 
+/** Square side for each code: half the leftover column height, capped. */
+const QR_BOX = 'h-[min((100dvh-17rem)/2,20rem)] w-[min((100dvh-17rem)/2,20rem)] [&>svg]:h-full [&>svg]:w-full'
+
 const LOGO = 'https://slido-content.s3.amazonaws.com/event/200/057/05/c2b76b14-small.png?ts=1777008390496'
 
 export default function DisplayPage() {
@@ -130,31 +133,31 @@ export default function DisplayPage() {
             Scan to answer <span className="grad-text font-black">live</span>
           </p>
 
-          {/* QR code */}
-          {joinUrl ? (
-            <div
-              className="rounded-3xl p-[3px]"
-              style={{ background: 'linear-gradient(135deg, #EC4899, #8B5CF6)' }}
-            >
-              <div className="rounded-[calc(1.5rem-3px)] bg-white p-4">
-                <QRCodeSVG
-                  value={joinUrl}
-                  size={320}
-                  bgColor="#ffffff"
-                  fgColor="#070B14"
-                  level="H"
-                  marginSize={1}
-                />
+          {/* Two identical codes, so the panel reads from more of the room. */}
+          {[0, 1].map((i) => (
+            joinUrl ? (
+              <div
+                key={i}
+                className="rounded-3xl p-[3px]"
+                style={{ background: 'linear-gradient(135deg, #EC4899, #8B5CF6)' }}
+              >
+                <div className="rounded-[calc(1.5rem-3px)] bg-white p-4">
+                  <div className={QR_BOX}>
+                    <QRCodeSVG
+                      value={joinUrl}
+                      size={320}
+                      bgColor="#ffffff"
+                      fgColor="#070B14"
+                      level="H"
+                      marginSize={1}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="h-[352px] w-[352px] animate-pulse rounded-3xl bg-white/5" />
-          )}
-
-          {/* URL */}
-          <div className="w-full rounded-2xl border border-white/8 bg-white/3 px-4 py-3 text-center">
-            <p className="break-all text-sm leading-relaxed text-slate-400">{joinUrl}</p>
-          </div>
+            ) : (
+              <div key={i} className={`animate-pulse rounded-3xl bg-white/5 ${QR_BOX}`} />
+            )
+          ))}
         </div>
 
         {/* Bottom logo */}
