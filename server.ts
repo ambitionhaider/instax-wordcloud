@@ -85,6 +85,7 @@ const QUESTIONS: string[] = [
   'If Instax was a person at this conference, what would its personality be?',
   'Which camera feature is your ultimate "secret weapon" when closing a high-value sale?',
   'Which color of Instax Camera best matches your personal mood today?',
+  'If you could bundle ONE surprising item inside an Instax starter kit to double its sales, what non-camera item would you pick?',
   'What is the strongest reason a customer has given for NOT buying an Instax?',
   'If the GFX System were a luxury vehicle, which model would it be on the road?',
   'If Instax had a Bollywood movie title, what would you call it?',

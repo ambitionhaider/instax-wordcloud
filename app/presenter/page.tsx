@@ -14,7 +14,7 @@ export default function PresenterPage() {
   const [state, setState] = useState<AppState>({
     questionIndex: 0,
     question: '',
-    totalQuestions: 7,
+    totalQuestions: 8,
     words: [],
     config: DEFAULT_CONFIG,
     stats: { participants: 0, votes: 0, connected: 0 },
