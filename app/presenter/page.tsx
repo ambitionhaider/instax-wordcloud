@@ -14,7 +14,7 @@ export default function PresenterPage() {
   const [state, setState] = useState<AppState>({
     questionIndex: 0,
     question: '',
-    totalQuestions: 8,
+    totalQuestions: 9,
     words: [],
     config: DEFAULT_CONFIG,
     stats: { participants: 0, votes: 0, connected: 0 },
@@ -73,6 +73,10 @@ export default function PresenterPage() {
 
   const { questionIndex, question, totalQuestions, words } = state
 
+  // Index 0 is the lobby slide, so questions are numbered from 1.
+  const questionCount = totalQuestions - 1
+  const inLobby = questionIndex === 0
+
   return (
     <div className="flex h-screen flex-col bg-[#070B14] font-sans text-slate-100 overflow-hidden page-fade">
 
@@ -83,17 +87,17 @@ export default function PresenterPage() {
 
         {/* Question dots */}
         <div className="flex items-center gap-3">
-          {Array.from({ length: totalQuestions }).map((_, i) => (
+          {Array.from({ length: questionCount }).map((_, i) => (
             <div key={i} className="flex items-center gap-1.5">
               <div className={`h-2 rounded-full transition-all duration-500 ${
-                i < questionIndex  ? 'w-2 bg-pink-500/40' :
-                i === questionIndex? 'w-6 bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.8)]' :
-                                    'w-2 bg-white/10'
+                i < questionIndex - 1  ? 'w-2 bg-pink-500/40' :
+                i === questionIndex - 1? 'w-6 bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.8)]' :
+                                        'w-2 bg-white/10'
               }`} />
             </div>
           ))}
           <span className="ml-2 text-sm text-slate-500">
-            <span className="text-slate-300 font-semibold">{questionIndex + 1}</span>/{totalQuestions}
+            <span className="text-slate-300 font-semibold">{inLobby ? '—' : questionIndex}</span>/{questionCount}
           </span>
         </div>
 
@@ -135,10 +139,12 @@ export default function PresenterPage() {
           <div className="grad-border flex-shrink-0">
             <div className="rounded-[calc(1rem-1px)] bg-[#0D1525] px-6 py-4">
               <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-pink-500">
-                Question {questionIndex + 1} of {totalQuestions}
+                {inLobby ? 'Lobby — not started' : `Question ${questionIndex} of ${questionCount}`}
               </p>
               <h1 className="text-2xl font-bold leading-snug text-slate-100">
-                {question || <span className="text-slate-600">Loading…</span>}
+                {inLobby
+                  ? <span className="text-slate-500">Waiting to start — press Next to open question 1</span>
+                  : question || <span className="text-slate-600">Loading…</span>}
               </h1>
             </div>
           </div>

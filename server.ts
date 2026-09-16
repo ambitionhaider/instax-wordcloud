@@ -80,7 +80,13 @@ function hasHostCookie(socket: Socket): boolean {
 
 // ── Questions ─────────────────────────────────────────────────────────────────
 
+/**
+ * Index 0 is the lobby: an empty prompt the surfaces render as a holding
+ * screen. Keeping it in the array means navigation, rooms and the poll id
+ * scheme all work unchanged — it is simply a question nobody can answer.
+ */
 const QUESTIONS: string[] = [
+  '',
   'What is the ONE word that describes your Fujifilm business?',
   'If Instax was a person at this conference, what would its personality be?',
   'Which camera feature is your ultimate "secret weapon" when closing a high-value sale?',
@@ -318,6 +324,11 @@ async function main() {
     answer: string,
     participantId: string,
   ): Promise<SubmitOutcome> {
+    // The lobby has no prompt, so nothing can be answered there.
+    if (id === pollId(0)) {
+      return { ok: false, error: 'The session has not started yet.' }
+    }
+
     const config = await store.getConfig(id)
 
     if (config.locked) {

@@ -17,7 +17,7 @@ export default function DisplayPage() {
   const [state, setState] = useState<AppState>({
     questionIndex: 0,
     question: '',
-    totalQuestions: 8,
+    totalQuestions: 9,
     words: [],
     config: DEFAULT_CONFIG,
     stats: { participants: 0, votes: 0, connected: 0 },
@@ -61,6 +61,41 @@ export default function DisplayPage() {
 
   const { question, questionIndex, totalQuestions, words } = state
 
+  // Index 0 is the lobby: the room sees only the join code until the presenter
+  // advances. Questions are numbered from 1, so the counts drop the lobby.
+  const questionCount = totalQuestions - 1
+
+  if (questionIndex === 0) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 overflow-hidden bg-[#070B14] px-8 font-sans text-white">
+        <img src={LOGO} alt="Fujifilm" className="h-12 w-auto object-contain brightness-0 invert opacity-80" />
+
+        <div className="flex items-center gap-2.5">
+          <span className="live-dot h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-400">Live Session</span>
+        </div>
+
+        <p className="text-center text-5xl font-black text-white">
+          Scan to <span className="grad-text">join</span>
+        </p>
+
+        {joinUrl ? (
+          <div className="rounded-[2.5rem] p-[5px]" style={{ background: 'linear-gradient(135deg, #EC4899, #8B5CF6)' }}>
+            <div className="rounded-[calc(2.5rem-5px)] bg-white p-5">
+              <div className="h-[min(52vh,52vw)] w-[min(52vh,52vw)] [&>svg]:h-full [&>svg]:w-full">
+                <QRCodeSVG value={joinUrl} size={512} bgColor="#ffffff" fgColor="#070B14" level="H" marginSize={1} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="h-[min(52vh,52vw)] w-[min(52vh,52vw)] animate-pulse rounded-[2.5rem] bg-white/5" />
+        )}
+
+        <p className="text-xl font-medium text-slate-500">{state.stats.participants} joined</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#070B14] font-sans text-white">
 
@@ -74,11 +109,11 @@ export default function DisplayPage() {
           <div className="flex items-center gap-4">
             {/* Progress pills */}
             <div className="flex items-center gap-2">
-              {Array.from({ length: totalQuestions }).map((_, i) => (
+              {Array.from({ length: questionCount }).map((_, i) => (
                 <div key={i} className={`h-1.5 rounded-full transition-all duration-700 ${
-                  i < questionIndex  ? 'w-4 bg-pink-500/40' :
-                  i === questionIndex? 'w-8 bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.7)]' :
-                                      'w-4 bg-white/10'
+                  i < questionIndex - 1  ? 'w-4 bg-pink-500/40' :
+                  i === questionIndex - 1? 'w-8 bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.7)]' :
+                                          'w-4 bg-white/10'
                 }`} />
               ))}
             </div>
@@ -98,7 +133,7 @@ export default function DisplayPage() {
           }`}
         >
           <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.25em] text-pink-500">
-            Question {questionIndex + 1} of {totalQuestions}
+            Question {questionIndex} of {questionCount}
           </p>
           <h1 className="text-4xl font-black leading-tight text-white">
             {question || <span className="text-slate-700">Loading…</span>}

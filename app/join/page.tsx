@@ -19,7 +19,7 @@ interface Toast {
 const EMPTY: AppState = {
   questionIndex: 0,
   question: '',
-  totalQuestions: 8,
+  totalQuestions: 9,
   words: [],
   config: DEFAULT_CONFIG,
   stats: { participants: 0, votes: 0, connected: 0 },
@@ -166,6 +166,35 @@ export default function JoinPage() {
     return 'text-slate-600'
   }, [charsLeft])
 
+  // Index 0 is the lobby: joined, but there is nothing to answer yet.
+  if (questionIndex === 0) {
+    return (
+      <div
+        className="flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-center font-sans"
+        style={{
+          background: 'radial-gradient(ellipse at top, #1a0533 0%, #0a0e1a 50%, #070B14 100%)',
+        }}
+      >
+        <img src={LOGO} alt="Fujifilm" className="h-10 w-auto object-contain opacity-80 brightness-0 invert" />
+
+        <div className="flex items-center gap-2">
+          <span className={`live-dot h-2 w-2 rounded-full ${connected ? 'bg-emerald-400' : 'bg-slate-600'}`} />
+          <span className={`text-xs font-bold uppercase tracking-widest ${connected ? 'text-emerald-400' : 'text-slate-600'}`}>
+            {connected ? "You're in" : 'Connecting…'}
+          </span>
+        </div>
+
+        <h1 className="text-2xl font-black leading-snug text-slate-100">
+          Waiting for the session to <span className="grad-text">start</span>
+        </h1>
+
+        <p className="max-w-xs text-sm leading-relaxed text-slate-500">
+          Keep this page open. The first question appears here automatically.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div
       className="flex min-h-screen flex-col items-center justify-center p-4 font-sans"
@@ -204,7 +233,7 @@ export default function JoinPage() {
           />
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-600">
-              Q {questionIndex + 1}/{totalQuestions}
+              Q {questionIndex}/{totalQuestions - 1}
             </span>
             <span className="h-3 w-px bg-white/10" />
             <span

@@ -7,7 +7,7 @@ import { DEFAULT_CONFIG, type AuditEntry, type HostState, type WordEntry } from 
 const EMPTY: HostState = {
   questionIndex: 0,
   question: '',
-  totalQuestions: 8,
+  totalQuestions: 9,
   words: [],
   allWords: [],
   config: DEFAULT_CONFIG,
@@ -160,7 +160,9 @@ export default function HostPage() {
       <div className="flex flex-shrink-0 items-center justify-between border-b border-white/5 px-6 py-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-pink-500">
-            Question {state.questionIndex + 1} of {state.totalQuestions}
+            {state.questionIndex === 0
+              ? 'Lobby — not started'
+              : `Question ${state.questionIndex} of ${state.totalQuestions - 1}`}
           </p>
           <p className="mt-0.5 text-base font-bold text-slate-200">
             {state.question || 'Loading…'}
