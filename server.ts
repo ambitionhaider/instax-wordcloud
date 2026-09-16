@@ -88,13 +88,13 @@ function hasHostCookie(socket: Socket): boolean {
 const QUESTIONS: string[] = [
   '',
   'What is the ONE word that describes your Fujifilm business?',
-  'If Instax was a person at this conference, what would its personality be?',
+  'If Fujifilm was a person at this conference, what would its personality be?',
   'Which camera feature is your ultimate "secret weapon" when closing a high-value sale?',
   'Which color of Instax Camera best matches your personal mood today?',
   'If you could bundle ONE surprising item inside an Instax starter kit to double its sales, what non-camera item would you pick?',
-  'What is the strongest reason a customer has given for NOT buying an Instax?',
+  'What is the strongest reason a customer has given for NOT buying a Fujifilm Product?',
   'If the GFX System were a luxury vehicle, which model would it be on the road?',
-  'If Instax had a Bollywood movie title, what would you call it?',
+  'If Fujifilm had a Bollywood movie title, what would you call it?',
 ]
 
 /** One poll per question. The poll id is the unit of isolation everywhere. */
