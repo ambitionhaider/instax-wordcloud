@@ -18,7 +18,7 @@ import { parse } from 'url'
 import next from 'next'
 import { Server, type Socket } from 'socket.io'
 import os from 'os'
-import { randomUUID } from 'crypto'
+import { createHmac, randomUUID, timingSafeEqual } from 'crypto'
 
 import { Blocklist, normalize } from './lib/normalize'
 import { createStore, describeAction, type PollStore } from './lib/store'
@@ -34,6 +34,49 @@ const handle = app.getRequestHandler()
 const BROADCAST_MS = 300
 /** How long a participant may undo their own submission. */
 const UNDO_WINDOW_MS = 5_000
+
+// ── Host auth ─────────────────────────────────────────────────────────────────
+
+const HOST_USER = process.env.HOST_USER ?? ''
+const HOST_PASSWORD = process.env.HOST_PASSWORD ?? ''
+const HOST_AUTH_ON = Boolean(HOST_USER && HOST_PASSWORD)
+const HOST_COOKIE = 'wc_host'
+
+/**
+ * Per-boot cookie value. A restart invalidates it, which costs nothing: the
+ * browser re-sends its Basic credentials on the next load and gets a new one.
+ */
+const hostCookieValue = createHmac('sha256', randomUUID())
+  .update(`${HOST_USER}:${HOST_PASSWORD}`)
+  .digest('hex')
+
+const safeEqual = (a: string, b: string) => {
+  const [ab, bb] = [Buffer.from(a), Buffer.from(b)]
+  return ab.length === bb.length && timingSafeEqual(ab, bb)
+}
+
+/** Basic-auth header against HOST_USER / HOST_PASSWORD. */
+function hasHostCredentials(req: IncomingMessage): boolean {
+  const header = req.headers.authorization ?? ''
+  if (!header.startsWith('Basic ')) return false
+  const decoded = Buffer.from(header.slice(6), 'base64').toString('utf8')
+  const sep = decoded.indexOf(':')
+  if (sep < 0) return false
+  return safeEqual(decoded.slice(0, sep), HOST_USER) && safeEqual(decoded.slice(sep + 1), HOST_PASSWORD)
+}
+
+/**
+ * Socket-side twin of the HTTP guard. The moderation panel talks over the
+ * socket, so gating only the page would leave the tally readable to anyone who
+ * opened a socket by hand.
+ */
+function hasHostCookie(socket: Socket): boolean {
+  if (!HOST_AUTH_ON) return true
+  const match = (socket.handshake.headers.cookie ?? '').match(
+    new RegExp(`(?:^|;\\s*)${HOST_COOKIE}=([^;]+)`),
+  )
+  return Boolean(match && safeEqual(match[1], hostCookieValue))
+}
 
 // ── Questions ─────────────────────────────────────────────────────────────────
 
@@ -168,6 +211,28 @@ async function main() {
         stats: await store.stats(id),
       })
       return
+    }
+
+    // /host is the moderation panel: Basic auth, then a cookie the socket reads.
+    if (pathname === '/host') {
+      if (!HOST_AUTH_ON) {
+        if (!dev) {
+          sendJson(res, 503, { error: 'Host panel disabled: set HOST_USER and HOST_PASSWORD.' })
+          return
+        }
+      } else if (!hasHostCredentials(req)) {
+        res.writeHead(401, {
+          'WWW-Authenticate': 'Basic realm="Host panel", charset="UTF-8"',
+          'Content-Type': 'text/plain; charset=utf-8',
+        })
+        res.end('Authentication required.')
+        return
+      } else {
+        res.setHeader(
+          'Set-Cookie',
+          `${HOST_COOKIE}=${hostCookieValue}; HttpOnly; SameSite=Lax; Path=/${dev ? '' : '; Secure'}`,
+        )
+      }
     }
 
     handle(req, res, parsedUrl)
@@ -383,6 +448,7 @@ async function main() {
 
     /** Host panel opt-in: joins the host room and starts receiving full tallies. */
     socket.on('host:join', async () => {
+      if (!hasHostCookie(socket)) return
       isHost = true
       socket.join(`${pollId(currentQuestion)}:host`)
       socket.emit('host_state', await buildHostState(pollId(currentQuestion), currentQuestion))
@@ -427,30 +493,38 @@ async function main() {
     socket.on('goto_question', ({ index }: { index: number }) => void goTo(Number(index)))
 
     // ── Moderation events ──
-    socket.on('word:hide', ({ key }: { key: string }) =>
-      void applyModeration(pollId(currentQuestion), { type: 'hide', key: String(key) }, participantId),
-    )
-    socket.on('word:restore', ({ key }: { key: string }) =>
-      void applyModeration(pollId(currentQuestion), { type: 'restore', key: String(key) }, participantId),
-    )
-    socket.on('word:merge', ({ from, into }: { from: string; into: string }) =>
+    // Host-only. Question navigation and reset stay open, since the presenter
+    // console drives those and sits behind no login.
+    socket.on('word:hide', ({ key }: { key: string }) => {
+      if (!hasHostCookie(socket)) return
+      void applyModeration(pollId(currentQuestion), { type: 'hide', key: String(key) }, participantId)
+    })
+    socket.on('word:restore', ({ key }: { key: string }) => {
+      if (!hasHostCookie(socket)) return
+      void applyModeration(pollId(currentQuestion), { type: 'restore', key: String(key) }, participantId)
+    })
+    socket.on('word:merge', ({ from, into }: { from: string; into: string }) => {
+      if (!hasHostCookie(socket)) return
       void applyModeration(
         pollId(currentQuestion),
         { type: 'merge', from: String(from), into: String(into) },
         participantId,
-      ),
-    )
-    socket.on('poll:lock', ({ locked }: { locked: boolean }) =>
-      void applyModeration(pollId(currentQuestion), { type: 'lock', locked: !!locked }, participantId),
-    )
-    socket.on('poll:config', ({ patch }: { patch: Partial<PollConfig> }) =>
-      void applyModeration(pollId(currentQuestion), { type: 'config', patch: patch ?? {} }, participantId),
-    )
+      )
+    })
+    socket.on('poll:lock', ({ locked }: { locked: boolean }) => {
+      if (!hasHostCookie(socket)) return
+      void applyModeration(pollId(currentQuestion), { type: 'lock', locked: !!locked }, participantId)
+    })
+    socket.on('poll:config', ({ patch }: { patch: Partial<PollConfig> }) => {
+      if (!hasHostCookie(socket)) return
+      void applyModeration(pollId(currentQuestion), { type: 'config', patch: patch ?? {} }, participantId)
+    })
     socket.on('reset_question', () =>
       void applyModeration(pollId(currentQuestion), { type: 'reset' }, participantId),
     )
 
     socket.on('get_audit', async () => {
+      if (!hasHostCookie(socket)) return
       socket.emit('audit_log', await store.auditLog(pollId(currentQuestion), 50))
     })
 
