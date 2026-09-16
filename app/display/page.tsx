@@ -8,8 +8,8 @@ import { DEFAULT_CONFIG, type AppState, type PollStats, type WordEntry } from '@
 
 const WordCloud = dynamic(() => import('@/components/WordCloud'), { ssr: false })
 
-/** Square side for each code: half the leftover column height, capped. */
-const QR_BOX = 'h-[min((100dvh-17rem)/2,20rem)] w-[min((100dvh-17rem)/2,20rem)] [&>svg]:h-full [&>svg]:w-full'
+/** Square side for the code: whatever the column can spare, capped. */
+const QR_BOX = 'h-[min(100dvh-17rem,22rem)] w-[min(100dvh-17rem,22rem)] [&>svg]:h-full [&>svg]:w-full'
 
 const LOGO = 'https://slido-content.s3.amazonaws.com/event/200/057/05/c2b76b14-small.png?ts=1777008390496'
 
@@ -118,50 +118,45 @@ export default function DisplayPage() {
       </div>
 
       {/* ── Right: QR panel ── */}
-      <div className="flex w-[26rem] flex-shrink-0 flex-col items-center justify-between border-l border-white/5 bg-[#080D17] px-8 py-10">
+      <div className="relative flex w-[26rem] flex-shrink-0 flex-col items-center justify-center gap-5 border-l border-white/5 bg-[#080D17] px-8 py-10">
 
-        {/* Top logo area */}
-        <div className="flex flex-col items-center gap-4 w-full">
-          <div className="flex flex-col items-center gap-1 text-center">
-            <div className="flex items-center gap-2">
-              <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Live Session</span>
-            </div>
-          </div>
-
-          <p className="text-lg font-semibold text-slate-400 text-center">
-            Scan to answer <span className="grad-text font-black">live</span>
-          </p>
-
-          {/* Two identical codes, so the panel reads from more of the room. */}
-          {[0, 1].map((i) => (
-            joinUrl ? (
-              <div
-                key={i}
-                className="rounded-3xl p-[3px]"
-                style={{ background: 'linear-gradient(135deg, #EC4899, #8B5CF6)' }}
-              >
-                <div className="rounded-[calc(1.5rem-3px)] bg-white p-4">
-                  <div className={QR_BOX}>
-                    <QRCodeSVG
-                      value={joinUrl}
-                      size={320}
-                      bgColor="#ffffff"
-                      fgColor="#070B14"
-                      level="H"
-                      marginSize={1}
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div key={i} className={`animate-pulse rounded-3xl bg-white/5 ${QR_BOX}`} />
-            )
-          ))}
+        <div className="flex items-center gap-2">
+          <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Live Session</span>
         </div>
 
-        {/* Bottom logo */}
-        <img src={LOGO} alt="Fujifilm" className="h-8 w-auto object-contain brightness-0 invert opacity-20" />
+        <p className="text-lg font-semibold text-slate-400 text-center">
+          Scan to answer <span className="grad-text font-black">live</span>
+        </p>
+
+        {joinUrl ? (
+          <div
+            className="rounded-3xl p-[3px]"
+            style={{ background: 'linear-gradient(135deg, #EC4899, #8B5CF6)' }}
+          >
+            <div className="rounded-[calc(1.5rem-3px)] bg-white p-4">
+              <div className={QR_BOX}>
+                <QRCodeSVG
+                  value={joinUrl}
+                  size={320}
+                  bgColor="#ffffff"
+                  fgColor="#070B14"
+                  level="H"
+                  marginSize={1}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={`animate-pulse rounded-3xl bg-white/5 ${QR_BOX}`} />
+        )}
+
+        {/* Absolute so the logo can't pull the code off centre. */}
+        <img
+          src={LOGO}
+          alt="Fujifilm"
+          className="absolute bottom-8 h-8 w-auto object-contain brightness-0 invert opacity-20"
+        />
       </div>
     </div>
   )
