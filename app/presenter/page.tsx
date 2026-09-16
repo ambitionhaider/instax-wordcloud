@@ -169,43 +169,7 @@ export default function PresenterPage() {
             </div>
           </div>
 
-          {/* Display screen link */}
-          <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 px-4 py-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400">Big Screen</p>
-            <a href={displayUrl} target="_blank" rel="noopener noreferrer"
-              className="mt-1 block truncate text-xs text-violet-300 hover:text-violet-200 underline underline-offset-2">
-              {displayUrl}
-            </a>
-            <p className="mt-1 text-[10px] text-slate-600">Open this on the projector</p>
-          </div>
-
-          {/* Question list */}
-          <div className="flex-1">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Questions</p>
-            <div className="flex flex-col gap-1">
-              {Array.from({ length: totalQuestions }).map((_, i) => (
-                <div key={i} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all ${
-                  i === questionIndex
-                    ? 'bg-pink-500/10 border border-pink-500/20'
-                    : i < questionIndex
-                    ? 'opacity-40'
-                    : 'opacity-25'
-                }`}>
-                  <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                    i < questionIndex  ? 'bg-emerald-500/20 text-emerald-400' :
-                    i === questionIndex? 'bg-pink-500 text-white' :
-                                        'bg-white/5 text-slate-500'
-                  }`}>
-                    {i < questionIndex ? '✓' : i + 1}
-                  </div>
-                  <span className={`text-xs ${i === questionIndex ? 'text-slate-200 font-semibold' : 'text-slate-500'}`}>
-                    Q{i + 1}
-                    {i === questionIndex && <span className="ml-2 text-[10px] text-pink-400">← current</span>}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <div className="flex-1" />
 
           {/* Controls */}
           <div className="flex-shrink-0 space-y-2 border-t border-white/5 pt-4">
