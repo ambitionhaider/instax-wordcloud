@@ -7,7 +7,7 @@ import { DEFAULT_CONFIG, type AuditEntry, type HostState, type WordEntry } from 
 const EMPTY: HostState = {
   questionIndex: 0,
   question: '',
-  totalQuestions: 5,
+  totalQuestions: 7,
   words: [],
   allWords: [],
   config: DEFAULT_CONFIG,

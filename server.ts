@@ -38,11 +38,13 @@ const UNDO_WINDOW_MS = 5_000
 // ── Questions ─────────────────────────────────────────────────────────────────
 
 const QUESTIONS: string[] = [
-  'In one word, how would you describe Fujifilm-Instax?',
-  'Which celebrity (male or female) would you like to see represent Instax?',
-  'What one change would you request Fujifilm management to implement?',
-  'Which product would you be interested to sell more this year?',
-  'How is your experience of the Malaysia trip?',
+  'What is the ONE word that describes your Fujifilm business?',
+  'If Instax was a person at this conference, what would its personality be?',
+  'Which camera feature is your ultimate "secret weapon" when closing a high-value sale?',
+  'If your best salesperson were an Instax camera, which model would they be — Mini, Square, Wide or Mini Evo?',
+  'What is the strongest reason a customer has given for NOT buying an Instax?',
+  'If the GFX System were a luxury vehicle, which model would it be on the road?',
+  'If Instax had a Bollywood movie title, what would you call it?',
 ]
 
 /** One poll per question. The poll id is the unit of isolation everywhere. */
