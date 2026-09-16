@@ -115,7 +115,7 @@ export default function DisplayPage() {
       </div>
 
       {/* ── Right: QR panel ── */}
-      <div className="flex w-72 flex-shrink-0 flex-col items-center justify-between border-l border-white/5 bg-[#080D17] px-8 py-10">
+      <div className="flex w-[26rem] flex-shrink-0 flex-col items-center justify-between border-l border-white/5 bg-[#080D17] px-8 py-10">
 
         {/* Top logo area */}
         <div className="flex flex-col items-center gap-4 w-full">
@@ -126,7 +126,7 @@ export default function DisplayPage() {
             </div>
           </div>
 
-          <p className="text-sm font-semibold text-slate-400 text-center">
+          <p className="text-lg font-semibold text-slate-400 text-center">
             Scan to answer <span className="grad-text font-black">live</span>
           </p>
 
@@ -139,7 +139,7 @@ export default function DisplayPage() {
               <div className="rounded-[calc(1.5rem-3px)] bg-white p-4">
                 <QRCodeSVG
                   value={joinUrl}
-                  size={200}
+                  size={320}
                   bgColor="#ffffff"
                   fgColor="#070B14"
                   level="H"
@@ -148,12 +148,12 @@ export default function DisplayPage() {
               </div>
             </div>
           ) : (
-            <div className="h-[224px] w-[224px] animate-pulse rounded-3xl bg-white/5" />
+            <div className="h-[352px] w-[352px] animate-pulse rounded-3xl bg-white/5" />
           )}
 
           {/* URL */}
           <div className="w-full rounded-2xl border border-white/8 bg-white/3 px-4 py-3 text-center">
-            <p className="break-all text-[11px] leading-relaxed text-slate-500">{joinUrl}</p>
+            <p className="break-all text-sm leading-relaxed text-slate-400">{joinUrl}</p>
           </div>
         </div>
 
