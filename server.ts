@@ -84,7 +84,7 @@ const QUESTIONS: string[] = [
   'What is the ONE word that describes your Fujifilm business?',
   'If Instax was a person at this conference, what would its personality be?',
   'Which camera feature is your ultimate "secret weapon" when closing a high-value sale?',
-  'If your best salesperson were an Instax camera, which model would they be — Mini, Square, Wide or Mini Evo?',
+  'Which color of Instax Camera best matches your personal mood today?',
   'What is the strongest reason a customer has given for NOT buying an Instax?',
   'If the GFX System were a luxury vehicle, which model would it be on the road?',
   'If Instax had a Bollywood movie title, what would you call it?',
